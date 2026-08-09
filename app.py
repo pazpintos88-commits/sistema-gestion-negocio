@@ -11,6 +11,26 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+def init_db():
+    conn = get_db()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            rol TEXT DEFAULT 'admin',
+            activo INTEGER DEFAULT 1
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Crear tabla al iniciar
+try:
+    init_db()
+except Exception as e:
+    print("Error inicializando DB:", e)
+
 @app.route('/')
 def index():
     if 'user_id' not in session:
@@ -31,7 +51,7 @@ def login():
         db = get_db()
         user = db.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario,)).fetchone()
         
-        if user and (check_password_hash(user['password'], password) if 'password' in user.keys() else check_password_hash(user['password_hash'], password)):
+        if user and check_password_hash(user['password'], password):
             session.clear()
             session['user_id'] = user['id']
             session['usuario'] = user['usuario']
@@ -53,10 +73,7 @@ def register():
             flash('El usuario ya existe. Intenta con otro.', 'danger')
         else:
             hashed_pw = generate_password_hash(password)
-            try:
-                db.execute('INSERT INTO usuarios (usuario, password, rol, activo) VALUES (?, ?, ?, ?)', (usuario, hashed_pw, 'admin', 1))
-            except sqlite3.OperationalError:
-                db.execute('INSERT INTO usuarios (usuario, password_hash, rol, activo) VALUES (?, ?, ?, ?)', (usuario, hashed_pw, 'admin', 1))
+            db.execute('INSERT INTO usuarios (usuario, password, rol, activo) VALUES (?, ?, ?, ?)', (usuario, hashed_pw, 'admin', 1))
             db.commit()
             flash('¡Cuenta creada con éxito! Ahora puedes iniciar sesión.', 'success')
             return redirect(url_for('login'))
