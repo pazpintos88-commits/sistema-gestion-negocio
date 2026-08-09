@@ -218,13 +218,13 @@ def admin_required(f):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        usuario = request.form['usuario']
-        password = request.form['password']
-        db = get_db()
-        user = db.execute(
-            'SELECT * FROM usuarios WHERE usuario = ? AND activo = 1', (usuario,)
-        ).fetchone()
-
+        # Auto-logueamos al visitante como admin o usuario temporal
+        session.clear()
+        session['user_id'] = 1
+        session['usuario'] = 'Demo'
+        session['rol'] = 'admin'
+        return redirect(url_for('index'))  # Te redirige directo al sistema
+    return render_template('login.html')
         if user and check_password_hash(user['password_hash'], password):
             session.clear()
             session['user_id'] = user['id']
