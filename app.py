@@ -1,10 +1,12 @@
 import os
 import sqlite3
+import traceback
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_sistema_gestion'
+app.config['DEBUG'] = True
 
 def get_db():
     conn = sqlite3.connect('database.db')
@@ -25,11 +27,14 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Crear tabla al iniciar
 try:
     init_db()
 except Exception as e:
     print("Error inicializando DB:", e)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return f"<h1>Error detectado en la app:</h1><pre>{traceback.format_exc()}</pre>", 500
 
 @app.route('/')
 def index():
