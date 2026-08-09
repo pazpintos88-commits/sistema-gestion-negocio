@@ -24,13 +24,18 @@ def init_db():
             activo INTEGER DEFAULT 1
         )
     ''')
+    # Crear un usuario administrador por defecto para poder ingresar
+    admin = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', ('admin',)).fetchone()
+    if not admin:
+        hashed_pw = generate_password_hash('admin123')
+        conn.execute('INSERT INTO usuarios (usuario, password, rol, activo) VALUES (?, ?, ?, ?)', ('admin', hashed_pw, 'admin', 1))
     conn.commit()
     conn.close()
 
 try:
     init_db()
 except Exception as e:
-    print("Error inicializando DB:", e)
+    print("Error DB:", e)
 
 @app.errorhandler(Exception)
 def handle_exception(e):
@@ -40,13 +45,13 @@ def handle_exception(e):
 def index():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('index.html')
+    return render_template('dashboard.html')
 
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('index.html')
+    return render_template('dashboard.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -60,30 +65,12 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             session['usuario'] = user['usuario']
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
             return render_template('login.html')
             
     return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        usuario = request.form.get('usuario')
-        password = request.form.get('password')
-        db = get_db()
-        
-        if db.execute('SELECT id FROM usuarios WHERE usuario = ?', (usuario,)).fetchone():
-            flash('El usuario ya existe. Intenta con otro.', 'danger')
-        else:
-            hashed_pw = generate_password_hash(password)
-            db.execute('INSERT INTO usuarios (usuario, password, rol, activo) VALUES (?, ?, ?, ?)', (usuario, hashed_pw, 'admin', 1))
-            db.commit()
-            flash('¡Cuenta creada con éxito! Ahora puedes iniciar sesión.', 'success')
-            return redirect(url_for('login'))
-            
-    return render_template('register.html')
 
 @app.route('/logout')
 def logout():
