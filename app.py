@@ -218,14 +218,51 @@ def admin_required(f):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Auto-logueamos al visitante como admin o usuario temporal
-        session.clear()
-        session['user_id'] = 1
-        session['usuario'] = 'Demo'
-        session['rol'] = 'admin'
-        return redirect(url_for('index'))  # Te redirige directo al sistema
+        usuario = request.form['usuario']
+        password = request.form['password']
+        db = get_db()
+        user = db.execute(
+            'SELECT * FROM usuarios WHERE usuario = ? AND activo = 1', (usuario,)
+        ).fetchone()
+
+        if user and check_password_hash(user['password'], password):
+            session.clear()
+            session['user_id'] = user['id']
+            session['usuario'] = user['usuario']
+            session['rol'] = user['rol']
+            return redirect(url_for('index'))
+        
+        flash('Usuario o contraseña incorrectos', 'danger')
     return render_template('login.html')
-        if user and check_password_hash(user['password_hash'], password):
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        password = request.form['password']
+        
+        db = get_db()
+        error = None
+
+        if not usuario or not password:
+            error = 'Usuario y contraseña son requeridos.'
+        elif db.execute('SELECT id FROM usuarios WHERE usuario = ?', (usuario,)).fetchone() is not None:
+            error = f'El usuario {usuario} ya está registrado.'
+
+        if error is None:
+            hashed_pw = generate_password_hash(password)
+            db.execute(
+                'INSERT INTO usuarios (usuario, password, rol, activo) VALUES (?, ?, ?, ?)',
+                (usuario, hashed_pw, 'admin', 1)
+            )
+            db.commit()
+            flash('¡Cuenta creada con éxito! Ahora puedes iniciar sesión.', 'success')
+            return redirect(url_for('login'))
+
+        flash(error, 'danger')
+
+    return render_template('register.html')        if user and check_password_hash(user['password_hash'], password):
             session.clear()
             session['user_id'] = user['id']
             return redirect(url_for('dashboard'))
