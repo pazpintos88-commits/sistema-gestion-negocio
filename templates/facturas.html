@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Comprobantes y Facturas Emitidas</h2>
+
+<table class="table table-striped mt-4">
+    <thead>
+        <tr>
+            <th>N.º Comprobante</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in facturas %}
+        <tr>
+            <td>{{ f.numero }}</td>
+            <td>{{ f.fecha }}</td>
+            <td>{{ f.cliente_nombre }}</td>
+            <td>{{ f.total|money }}</td>
+            <td>
+                <a href="{{ url_for('factura_detalle', fid=f.id) }}" class="btn btn-sm btn-info text-white">Ver</a>
+                <a href="{{ url_for('factura_pdf', fid=f.id) }}" class="btn btn-sm btn-danger">Descargar PDF</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

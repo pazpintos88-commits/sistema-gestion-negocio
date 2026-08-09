@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Configuración del Negocio</h2>
+
+<form method="POST" class="card p-4 mt-4">
+    <div class="mb-3">
+        <label class="form-label">Nombre del Negocio</label>
+        <input type="text" name="nombre_negocio" class="form-control" value="{{ config.nombre_negocio }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">CUIT / Identificación Fiscal</label>
+        <input type="text" name="cuit" class="form-control" value="{{ config.cuit or '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Dirección</label>
+        <input type="text" name="direccion" class="form-control" value="{{ config.direccion or '' }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+</form>
+{% endblock %}

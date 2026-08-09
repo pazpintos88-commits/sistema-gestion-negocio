@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4">
+    <div class="d-flex justify-content-between">
+        <h3>Factura {{ factura.numero }}</h3>
+        <a href="{{ url_for('factura_pdf', fid=factura.id) }}" class="btn btn-danger">Imprimir / Descargar PDF</a>
+    </div>
+    <hr>
+    <p><strong>Cliente:</strong> {{ factura.cliente_nombre }}</p>
+    {% if factura.cliente_doc %}<p><strong>Documento:</strong> {{ factura.cliente_doc }}</p>{% endif %}
+    <p><strong>Fecha:</strong> {{ factura.fecha }}</p>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>P. Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for it in items %}
+            <tr>
+                <td>{{ it.nombre_producto }}</td>
+                <td>{{ it.cantidad }}</td>
+                <td>{{ it.precio_unitario|money }}</td>
+                <td>{{ it.subtotal|money }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4 class="text-end mt-3">Total: {{ factura.total|money }}</h4>
+</div>
+{% endblock %}

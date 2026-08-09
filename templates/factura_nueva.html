@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Emitir Factura para Venta #{{ venta.id }}</h2>
+
+<form method="POST" class="card p-4 mt-4">
+    <div class="mb-3">
+        <label class="form-label">Nombre del Cliente</label>
+        <input type="text" name="cliente_nombre" class="form-control" placeholder="Consumidor Final" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Documento / CUIT (Opcional)</label>
+        <input type="text" name="cliente_doc" class="form-control">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Notas Adicionales</label>
+        <textarea name="notas" class="form-control" rows="2"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Confirmar y Emitir</button>
+</form>
+{% endblock %}

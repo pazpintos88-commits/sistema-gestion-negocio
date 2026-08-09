@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar Nueva Venta</h2>
+
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card p-3">
+            <h5>Agregar Producto</h5>
+            <form action="{{ url_for('venta_agregar_item') }}" method="POST">
+                <div class="mb-3">
+                    <label>Producto</label>
+                    <select name="producto_id" class="form-select" required>
+                        {% for p in productos %}
+                        <option value="{{ p.id }}">{{ p.nombre }} (Stock: {{ p.stock }}) - {{ p.precio_venta|money }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Cantidad</label>
+                    <input type="number" name="cantidad" class="form-control" value="1" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-secondary w-100">Agregar al Carrito</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card p-3">
+            <h5>Carrito de Compras</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in carrito %}
+                    <tr>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.precio_unitario|money }}</td>
+                        <td>{{ item.subtotal|money }}</td>
+                        <td>
+                            <form action="{{ url_for('venta_quitar_item', idx=loop.index0) }}" method="POST">
+                                <button class="btn btn-danger btn-sm">X</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>Total: {{ total|money }}</h4>
+                <form action="{{ url_for('venta_confirmar') }}" method="POST">
+                    <button type="submit" class="btn btn-success btn-lg" {% if not carrito %}disabled{% endif %}>Confirmar Venta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

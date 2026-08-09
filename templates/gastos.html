@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Gestión de Gastos</h2>
+
+<div class="card my-4">
+    <div class="card-header fw-bold">Registrar Nuevo Gasto</div>
+    <div class="card-body">
+        <form method="POST" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="descripcion" class="form-control" placeholder="Descripción" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="categoria" class="form-control" placeholder="Categoría (ej: Servicios, Alquiler)">
+            </div>
+            <div class="col-md-2">
+                <input type="number" step="0.01" name="monto" class="form-control" placeholder="Monto" required>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="fecha" class="form-control" value="{{ hoy }}">
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Monto</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for g in gastos %}
+        <tr>
+            <td>{{ g.fecha }}</td>
+            <td>{{ g.descripcion }}</td>
+            <td>{{ g.categoria }}</td>
+            <td>{{ g.monto|money }}</td>
+            <td>
+                <form action="{{ url_for('eliminar_gasto', gid=g.id) }}" method="POST" onsubmit="return confirm('¿Eliminar gasto?');">
+                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

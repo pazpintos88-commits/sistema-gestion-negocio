@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Detalle de Venta #{{ venta.id }}</h2>
+<p><strong>Fecha:</strong> {{ venta.fecha }} | <strong>Vendedor:</strong> {{ venta.vendedor }}</p>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for it in items %}
+        <tr>
+            <td>{{ it.nombre_producto }}</td>
+            <td>{{ it.categoria_producto }}</td>
+            <td>{{ it.cantidad }}</td>
+            <td>{{ it.precio_unitario|money }}</td>
+            <td>{{ it.subtotal|money }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3 class="text-end mt-4">Total: {{ venta.total|money }}</h3>
+
+{% if factura %}
+<div class="alert alert-info mt-3">
+    Esta venta fue facturada bajo el comprobante N° <strong>{{ factura.numero }}</strong>. 
+    <a href="{{ url_for('factura_detalle', fid=factura.id) }}">Ver factura</a>
+</div>
+{% else %}
+<a href="{{ url_for('factura_nueva', vid=venta.id) }}" class="btn btn-primary mt-3">Generar Factura</a>
+{% endif %}
+{% endblock %}
